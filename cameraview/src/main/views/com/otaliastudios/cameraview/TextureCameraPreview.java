@@ -10,7 +10,7 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 
-class TextureCameraPreview extends CameraPreview<TextureView, SurfaceTexture> {
+public class TextureCameraPreview extends CameraPreview<TextureView, SurfaceTexture> {
 
     private View mRootView;
 
@@ -52,7 +52,7 @@ class TextureCameraPreview extends CameraPreview<TextureView, SurfaceTexture> {
 
     @NonNull
     @Override
-    View getRootView() {
+    public View getRootView() {
         return mRootView;
     }
 

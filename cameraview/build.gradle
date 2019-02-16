@@ -1,6 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
 
 // Required by bintray
 version = '2.0.0-beta02'
@@ -9,12 +7,12 @@ group = 'com.otaliastudios'
 //region android dependencies
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdkVersion project.ANDROID_BUILD_SDK_VERSION as Integer
     // buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdkVersion project.ANDROID_BUILD_MIN_SDK_VERSION
+        targetSdkVersion project.ANDROID_BUILD_TARGET_SDK_VERSION
         versionCode 1
         versionName project.version
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -59,7 +57,7 @@ dependencies {
 
 //region bintray
 
-install {
+/*install {
     repositories.mavenInstaller {
         pom.project {
             name 'CameraView'
@@ -126,7 +124,7 @@ bintray {
             vcsTag = 'v'+project.version
         }
     }
-}
+}*/
 
 //endregion
 
@@ -177,54 +175,7 @@ artifacts {
 // to the jacoco task, so we get a unified XML report with total coverage.
 // Reference: https://medium.com/@rafael_toledo/setting-up-an-unified-coverage-report-in-android-with-jacoco-robolectric-and-espresso-ffe239aaf3fa
 
-apply plugin: 'jacoco'
 
-def reportsDirectory = "$buildDir/reports/"
-jacoco {
-    toolVersion = "0.8.1"
-    reportsDir = file(reportsDirectory)
-}
-
-task mergedCoverageReport(type: JacocoReport) {
-    dependsOn "testDebugUnitTest"
-    dependsOn "connectedCheck"
-
-    // Merge unit tests and android tests data
-    executionData = fileTree(dir: "$buildDir", includes: [
-            "jacoco/testDebugUnitTest.exec", // Unit tests
-            "outputs/code-coverage/connected/*coverage.ec" // Android tests
-    ])
-
-    // Sources
-    sourceDirectories = files(android.sourceSets.main.java.sourceFiles)
-    additionalSourceDirs = files([ // Add BuildConfig and R.
-            "$buildDir/generated/source/buildConfig/debug",
-            "$buildDir/generated/source/r/debug"
-    ])
-
-    // Classes (.class files)
-    // Not everything in the filter relates to CameraView,
-    // but let's keep a generic filter
-    def classDir = "$buildDir/intermediates/javac/debug"
-    def classFilter = [
-            '**/R.class',
-            '**/R$*.class',
-            '**/BuildConfig.*',
-            '**/Manifest*.*',
-            'android/**',
-            'androidx/**',
-            'com/google/**',
-            '**/*$ViewInjector*.*',
-            '**/Dagger*Component.class',
-            '**/Dagger*Component$Builder.class',
-            '**/*Module_*Factory.class',
-    ]
-    classDirectories = fileTree(dir: classDir, excludes: classFilter);
-
-    reports.html.enabled = true
-    reports.xml.enabled = true
-    reports.xml.destination file("$reportsDirectory/mergedCoverageReport/report.xml")
-}
 
 //endregion
 

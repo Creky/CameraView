@@ -161,6 +161,22 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         return isCameraAvailable() && mIsBound;
     }
 
+
+    void setDeviceOrientation(int deviceOrientation) {
+        super.setDeviceOrientation(deviceOrientation);
+        if (mCamera != null && mPreview != null) {
+            if (this.getDeviceOrientation() == 270)
+                mCamera.setDisplayOrientation(0);
+            else if (this.getDeviceOrientation() == 90)
+                mCamera.setDisplayOrientation(180);
+            else if (this.getDeviceOrientation() == 0)
+                mCamera.setDisplayOrientation(90);
+
+            stopPreview();
+            startPreview("onStart");
+        }
+    }
+
     // To be called when the preview size is setup or changed.
     private void startPreview(String log) {
         LOG.i(log, "Dispatching onCameraPreviewSizeChanged.");
@@ -168,7 +184,17 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
 
         Size previewSize = getPreviewSize(REF_VIEW);
         boolean wasFlipped = flip(REF_SENSOR, REF_VIEW);
-        mPreview.setInputStreamSize(previewSize.getWidth(), previewSize.getHeight(), wasFlipped);
+        int width;
+        int height;
+        if (this.getDeviceOrientation() == 270 || this.getDeviceOrientation() == 90) {
+            width = Math.max(previewSize.getHeight(), previewSize.getWidth());
+            height = Math.min(previewSize.getHeight(), previewSize.getWidth());
+        } else {
+            width = Math.min(previewSize.getHeight(), previewSize.getWidth());
+            height = Math.max(previewSize.getHeight(), previewSize.getWidth());
+        }
+
+        mPreview.setInputStreamSize(width, height, wasFlipped);
 
         Camera.Parameters params = mCamera.getParameters();
         mPreviewFormat = params.getPreviewFormat();
@@ -328,9 +354,14 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         Exception runtime = new RuntimeException(CameraLogger.lastMessage);
         int reason;
         switch (error) {
-            case Camera.CAMERA_ERROR_EVICTED: reason = CameraException.REASON_DISCONNECTED; break;
-            case Camera.CAMERA_ERROR_UNKNOWN: reason = CameraException.REASON_UNKNOWN; break;
-            default: reason = CameraException.REASON_UNKNOWN;
+            case Camera.CAMERA_ERROR_EVICTED:
+                reason = CameraException.REASON_DISCONNECTED;
+                break;
+            case Camera.CAMERA_ERROR_UNKNOWN:
+                reason = CameraException.REASON_UNKNOWN;
+                break;
+            default:
+                reason = CameraException.REASON_UNKNOWN;
         }
         throw new CameraException(runtime, reason);
     }
@@ -951,4 +982,3 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         });
     }
 }
-

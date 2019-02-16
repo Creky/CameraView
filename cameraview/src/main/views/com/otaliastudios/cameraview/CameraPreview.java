@@ -6,7 +6,7 @@ import androidx.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 
-abstract class CameraPreview<T extends View, Output> {
+public abstract class CameraPreview<T extends View, Output> {
 
     protected final static CameraLogger LOG = CameraLogger.create(CameraPreview.class.getSimpleName());
 

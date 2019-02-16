@@ -141,4 +141,8 @@ public abstract class CameraListener {
 
     }
 
+    @UiThread
+    public void onPreviewReady(CameraPreview cameraPreview) {
+
+    }
 }

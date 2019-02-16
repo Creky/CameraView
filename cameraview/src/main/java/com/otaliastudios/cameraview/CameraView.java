@@ -57,6 +57,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     // Components
     /* for tests */ CameraCallbacks mCameraCallbacks;
+
     private CameraPreview mCameraPreview;
     private OrientationHelper mOrientationHelper;
     private CameraController mCameraController;
@@ -257,6 +258,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     /* for tests */ void instantiatePreview() {
         mCameraPreview = instantiatePreview(getContext(), this);
         mCameraController.setPreview(mCameraPreview);
+        for (CameraListener listener : mListeners) {
+            listener.onPreviewReady(mCameraPreview);
+        }
     }
 
     @Override
@@ -1412,6 +1416,12 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         } else {
             return cropSize;
         }
+    }
+
+    @Nullable
+    public Size getPreviewSize() {
+        if (getWidth() == 0 || getHeight() == 0) return null;
+        return mCameraController.getPreviewSize(CameraController.REF_VIEW);
     }
 
 
